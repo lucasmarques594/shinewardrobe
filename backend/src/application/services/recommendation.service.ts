@@ -160,8 +160,6 @@ export class RecommendationService {
   }
 
   private extractGenderFromRecommendation(recommendation: Recommendation): 'male' | 'female' | 'other' {
-    // This is a simplified approach - in a real app, you might store gender with the recommendation
-    // or fetch it from the user profile
     return 'other'; // fallback
   }
 }
