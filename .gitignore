@@ -1,0 +1,368 @@
+# ==================================
+# ShineWardrobe - .gitignore
+# ==================================
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# API Keys and sensitive data
+*.pem
+*.key
+*.crt
+secrets/
+config/secrets.json
+
+# ==================================
+# Backend (Bun + ElysiaJS)
+# ==================================
+
+# Dependencies
+node_modules/
+bun.lockb
+
+# Build outputs
+dist/
+build/
+.cache/
+tmp/
+temp/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+.nyc_output/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# ==================================
+# Frontend (Next.js)
+# ==================================
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# Static files and uploads
+frontend/public/uploads/
+frontend/public/temp/
+
+# Next.js cache
+frontend/.next/cache/
+
+# Vercel deployment
+.vercel
+
+# Turbo
+.turbo
+
+# ==================================
+# Go (Webscraper)
+# ==================================
+
+# Binaries for programs and plugins
+webscraper/*.exe
+webscraper/*.exe~
+webscraper/*.dll
+webscraper/*.so
+webscraper/*.dylib
+webscraper/scraper
+webscraper/main
+
+# Test binary, built with `go test -c`
+webscraper/*.test
+
+# Output of the go coverage tool
+webscraper/*.out
+
+# Go workspace file
+webscraper/go.work
+
+# Vendor directory (if using)
+webscraper/vendor/
+
+# Air (live reload) files
+webscraper/.air.toml
+webscraper/tmp/
+webscraper/build-errors.log
+
+# ==================================
+# Database
+# ==================================
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL
+postgres_data/
+pgdata/
+
+# Database dumps
+*.sql.gz
+*.dump
+backups/
+
+# ==================================
+# Docker
+# ==================================
+
+# Docker volumes
+postgres_data_dev/
+postgres_data/
+
+# Docker build cache
+.docker/
+
+# ==================================
+# Development Tools
+# ==================================
+
+# IDEs and editors
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+.idea/
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ==================================
+# Operating System
+# ==================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# ==================================
+# Monitoring and Analytics
+# ==================================
+
+# Monitoring tools
+newrelic.js
+.newrelic.js
+
+# Analytics
+analytics/
+
+# ==================================
+# Testing
+# ==================================
+
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Jest
+jest-coverage/
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ==================================
+# Deployment and CI/CD
+# ==================================
+
+# Kubernetes secrets
+k8s/secrets/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+
+# Deployment configs
+deployment-config.json
+.deployment/
+
+# GitHub Actions (keep workflows, ignore secrets)
+!.github/workflows/
+.github/secrets/
+
+# ==================================
+# Miscellaneous
+# ==================================
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+temp/
+
+# Backup files
+*.backup
+*.bak
+*.orig
+
+# Compressed files
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+
+# Cache directories
+.cache/
+.parcel-cache/
+
+# Chrome debugging
+.chrome/
+
+# Debug files
+debug.log
+error.log
+
+# Local data
+local_data/
+user_uploads/
+
+# ==================================
+# Project Specific
+# ==================================
+
+# Product images cache
+product_images/
+scraped_images/
+
+# Weather data cache
+weather_cache/
+
+# Recommendation history
+recommendation_history/
+
+# User uploaded content
+uploads/
+user_content/
+
+# Generated documentation
+docs/generated/
+
+# Performance monitoring
+performance/
+
+# Health check logs
+health_checks/
+
+# Scraper specific
+webscraper/scraped_data/
+webscraper/screenshots/
+webscraper/downloads/
+
+# AI model cache
+ai_cache/
+claude_cache/
+
+# Metrics and stats
+metrics/
+statistics/ 
+
+# Pasta do macbook
+˜
