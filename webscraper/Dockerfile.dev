@@ -1,0 +1,35 @@
+FROM golang:1.21-alpine AS base
+
+# Install dependencies for Chrome
+RUN apk add --no-cache \
+    chromium \
+    ca-certificates \
+    && rm -rf /var/cache/apk/*
+
+# Set Chrome path
+ENV CHROME_BIN=/usr/bin/chromium-browser
+ENV CHROME_PATH=/usr/bin/chromium-browser
+
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Install air for hot reload
+RUN go install github.com/cosmtrek/air@latest
+
+# Copy source code
+COPY . .
+
+# Create air config
+RUN echo '[build]' > .air.toml && \
+    echo 'cmd = "go build -o ./tmp/main ./cmd/main.go"' >> .air.toml && \
+    echo 'bin = "tmp/main"' >> .air.toml && \
+    echo 'full_bin = "./tmp/main"' >> .air.toml && \
+    echo 'include_ext = ["go", "tpl", "tmpl", "html"]' >> .air.toml && \
+    echo 'exclude_dir = ["tmp"]' >> .air.toml && \
+    echo 'log = "build-errors.log"' >> .air.toml && \
+    echo 'delay = 1000' >> .air.toml
+
+CMD ["air", "-c", ".air.toml"]
