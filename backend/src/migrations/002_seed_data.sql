@@ -1,0 +1,175 @@
+-- Insert sample products for testing
+INSERT INTO products (
+    name, brand, category, subcategory, price, original_price,
+    image_url, product_url, description, sizes, colors,
+    is_luxury, is_economic, source, gender, season, weather
+) VALUES 
+-- Economic options
+(
+    'Camiseta Básica 100% Algodão',
+    'Renner',
+    'shirt',
+    't-shirt',
+    29.90,
+    NULL,
+    'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',
+    'https://example.com/camiseta-basica-1',
+    'Camiseta básica em algodão, confortável para o dia a dia',
+    '["P", "M", "G", "GG"]',
+    '["Branco", "Preto", "Azul"]',
+    FALSE,
+    TRUE,
+    'renner',
+    'unisex',
+    'all',
+    '["sunny", "hot"]'
+),
+(
+    'Bermuda Jeans Masculina',
+    'C&A',
+    'pants',
+    'shorts',
+    59.90,
+    79.90,
+    'https://images.unsplash.com/photo-1555689502-c4b22d76c56f?w=500',
+    'https://example.com/bermuda-jeans-1',
+    'Bermuda jeans confortável, ideal para dias quentes',
+    '["38", "40", "42", "44"]',
+    '["Azul", "Preto"]',
+    FALSE,
+    TRUE,
+    'ca',
+    'male',
+    'summer',
+    '["sunny", "hot"]'
+),
+
+-- Luxury options
+(
+    'Camisa Polo Premium',
+    'Lacoste',
+    'shirt',
+    'polo',
+    249.90,
+    NULL,
+    'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500',
+    'https://example.com/polo-lacoste-1',
+    'Camisa polo premium em piquê, corte moderno',
+    '["P", "M", "G", "GG"]',
+    '["Branco", "Marinho", "Verde"]',
+    TRUE,
+    FALSE,
+    'lacoste',
+    'male',
+    'all',
+    '["sunny", "cloudy"]'
+),
+(
+    'Vestido Midi Designer',
+    'Zara',
+    'dress',
+    'midi',
+    399.90,
+    NULL,
+    'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500',
+    'https://example.com/vestido-midi-1',
+    'Vestido midi elegante, perfeito para ocasiões especiais',
+    '["P", "M", "G"]',
+    '["Preto", "Azul marinho", "Vermelho"]',
+    TRUE,
+    FALSE,
+    'zara',
+    'female',
+    'all',
+    '["sunny", "cloudy"]'
+),
+
+-- More economic options
+(
+    'Calça Jeans Skinny',
+    'Marisa',
+    'pants',
+    'jeans',
+    89.90,
+    119.90,
+    'https://images.unsplash.com/photo-1582418702874-997bb9d0ca3c?w=500',
+    'https://example.com/calca-jeans-skinny-1',
+    'Calça jeans skinny, corte moderno e confortável',
+    '["36", "38", "40", "42", "44"]',
+    '["Azul claro", "Azul escuro", "Preto"]',
+    FALSE,
+    TRUE,
+    'marisa',
+    'female',
+    'all',
+    '["sunny", "cloudy"]'
+),
+(
+    'Camiseta Gola V Masculina',
+    'Hering',
+    'shirt',
+    't-shirt',
+    39.90,
+    NULL,
+    'https://images.unsplash.com/photo-1583743814966-8936f37f4678?w=500',
+    'https://example.com/camiseta-gola-v-1',
+    'Camiseta gola V em malha de qualidade',
+    '["P", "M", "G", "GG"]',
+    '["Branco", "Cinza", "Preto", "Marinho"]',
+    FALSE,
+    TRUE,
+    'hering',
+    'male',
+    'all',
+    '["sunny", "hot"]'
+),
+
+-- Luxury winter options
+(
+    'Casaco de Lã Premium',
+    'Hugo Boss',
+    'jacket',
+    'coat',
+    899.90,
+    NULL,
+    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500',
+    'https://example.com/casaco-la-premium-1',
+    'Casaco de lã premium, elegante e quente para o inverno',
+    '["P", "M", "G", "GG"]',
+    '["Preto", "Cinza", "Marinho"]',
+    TRUE,
+    FALSE,
+    'hugoboss',
+    'unisex',
+    'winter',
+    '["cold", "rain"]'
+),
+(
+    'Bota Couro Masculina',
+    'Democrata',
+    'shoes',
+    'boots',
+    359.90,
+    NULL,
+    'https://images.unsplash.com/photo-1608256246200-53e8b47b2ba5?w=500',
+    'https://example.com/bota-couro-1',
+    'Bota em couro legítimo, resistente e confortável',
+    '["39", "40", "41", "42", "43", "44"]',
+    '["Marrom", "Preto"]',
+    TRUE,
+    FALSE,
+    'democrata',
+    'male',
+    'all',
+    '["cold", "rain"]'
+);
+
+-- Insert sample user (for testing)
+INSERT INTO users (email, name, password_hash, city, gender) VALUES 
+(
+    'teste@exemplo.com',
+    'Usuário Teste',
+    '$2a$10$example.hash.for.password.testing.purposes.only',
+    'São Paulo',
+    'other'
+);
