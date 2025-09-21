@@ -1,16 +1,19 @@
 import { RecommendationRepository } from '../../infrastructure/repositories/recommendation.repository';
 import { ProductRepository } from '../../infrastructure/repositories/product.repository';
 import { WeatherService } from './weather.service';
-import { ClaudeService } from './claude.service';
+import { OllamaService } from './ollama.service';
 import { Recommendation } from '../../domain/entities/recommendation.entity';
 
 export class RecommendationService {
+  private ollamaService: OllamaService;
+
   constructor(
     private recommendationRepository: RecommendationRepository,
     private productRepository: ProductRepository,
-    private weatherService: WeatherService,
-    private claudeService: ClaudeService
-  ) {}
+    private weatherService: WeatherService
+  ) {
+    this.ollamaService = new OllamaService();
+  }
 
   async generateRecommendation(
     userId: string,
@@ -25,21 +28,18 @@ export class RecommendationService {
       throw new Error('Gender is required for outfit recommendations');
     }
 
-    // Get current weather
     const weather = await this.weatherService.getCurrentWeather(city);
 
-    // Get available products for the gender
     const products = await this.productRepository.findByGenderAndAvailability(
       gender === 'other' ? 'unisex' : gender,
-      true // only available products
+      true 
     );
 
     if (products.length === 0) {
       throw new Error('No products available for recommendations');
     }
 
-    // Generate outfit using Claude AI
-    const { outfit, reasoning } = await this.claudeService.generateOutfitRecommendation(
+    const { outfit, reasoning } = await this.ollamaService.generateOutfitRecommendation(
       weather,
       city,
       gender,
@@ -49,7 +49,6 @@ export class RecommendationService {
       }))
     );
 
-    // Save recommendation
     const recommendation = await this.recommendationRepository.create({
       userId,
       city,
@@ -131,7 +130,6 @@ export class RecommendationService {
       return null;
     }
 
-    // Generate new recommendation with same parameters
     return await this.generateRecommendation(
       userId,
       existing.city,
@@ -160,6 +158,6 @@ export class RecommendationService {
   }
 
   private extractGenderFromRecommendation(recommendation: Recommendation): 'male' | 'female' | 'other' {
-    return 'other'; // fallback
+    return 'other'; 
   }
 }
