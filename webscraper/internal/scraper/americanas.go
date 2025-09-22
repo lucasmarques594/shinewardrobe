@@ -28,7 +28,6 @@ func (a *AmericanasScraper) GetName() string {
 func (a *AmericanasScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 	a.logger.Info("Starting Americanas scraping...")
 
-	// Create Chrome context
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("no-sandbox", true),
@@ -44,7 +43,6 @@ func (a *AmericanasScraper) ScrapeProducts(ctx context.Context) ([]Product, erro
 
 	var products []Product
 
-	// Americanas search URLs for clothing
 	searches := map[string]string{
 		"camisetas-masculino": "https://www.americanas.com.br/busca/camiseta-masculina",
 		"camisetas-feminino":  "https://www.americanas.com.br/busca/camiseta-feminina",
@@ -64,7 +62,6 @@ func (a *AmericanasScraper) ScrapeProducts(ctx context.Context) ([]Product, erro
 
 		products = append(products, categoryProducts...)
 		
-		// Rate limiting - Americanas can be stricter
 		time.Sleep(4 * time.Second)
 	}
 
@@ -75,10 +72,9 @@ func (a *AmericanasScraper) ScrapeProducts(ctx context.Context) ([]Product, erro
 func (a *AmericanasScraper) scrapeCategory(ctx context.Context, url, categoryName string) ([]Product, error) {
 	var htmlContent string
 
-	// Navigate and wait for products
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
-		chromedp.Sleep(6*time.Second), // Longer wait for Americanas
+		chromedp.Sleep(6*time.Second), 
 		chromedp.WaitVisible(".product-grid-item, .product-item, .col-product", chromedp.ByQuery),
 		chromedp.InnerHTML("html", &htmlContent),
 	)
@@ -87,7 +83,6 @@ func (a *AmericanasScraper) scrapeCategory(ctx context.Context, url, categoryNam
 		return nil, fmt.Errorf("failed to load Americanas page: %w", err)
 	}
 
-	// Parse HTML
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlContent))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %w", err)
@@ -95,7 +90,6 @@ func (a *AmericanasScraper) scrapeCategory(ctx context.Context, url, categoryNam
 
 	var products []Product
 
-	// Try Americanas selectors
 	selectors := []string{
 		".product-grid-item",
 		".product-item",
@@ -108,7 +102,7 @@ func (a *AmericanasScraper) scrapeCategory(ctx context.Context, url, categoryNam
 		items := doc.Find(selector)
 		if items.Length() > 0 {
 			items.Each(func(i int, s *goquery.Selection) {
-				if i >= 10 { // Limit products for Americanas
+				if i >= 10 { 
 					return
 				}
 
@@ -125,7 +119,6 @@ func (a *AmericanasScraper) scrapeCategory(ctx context.Context, url, categoryNam
 }
 
 func (a *AmericanasScraper) extractProduct(s *goquery.Selection, categoryName string) Product {
-	// Extract product information
 	name := a.trySelectors(s, []string{
 		".product-title",
 		".product-name",
@@ -144,7 +137,6 @@ func (a *AmericanasScraper) extractProduct(s *goquery.Selection, categoryName st
 		"[data-testid='price-value']",
 	})
 
-	// Get image
 	imageURL, _ := s.Find("img").First().Attr("src")
 	if imageURL == "" {
 		imageURL, _ = s.Find("img").First().Attr("data-src")
@@ -153,10 +145,8 @@ func (a *AmericanasScraper) extractProduct(s *goquery.Selection, categoryName st
 		imageURL, _ = s.Find("img").First().Attr("data-original")
 	}
 
-	// Get product URL
 	productURL, _ := s.Find("a").First().Attr("href")
 
-	// Clean URLs
 	if imageURL != "" && !strings.HasPrefix(imageURL, "http") {
 		if strings.HasPrefix(imageURL, "//") {
 			imageURL = "https:" + imageURL
@@ -168,13 +158,12 @@ func (a *AmericanasScraper) extractProduct(s *goquery.Selection, categoryName st
 		productURL = "https://www.americanas.com.br" + productURL
 	}
 
-	// Categorize
 	category, subcategory := a.categorizeProduct(categoryName, name)
 	gender := determineGender(name, category)
 
 	product := Product{
 		Name:        strings.TrimSpace(name),
-		Brand:       a.extractBrand(name), // Try to extract brand from product name
+		Brand:       a.extractBrand(name),
 		Category:    category,
 		Subcategory: subcategory,
 		Price:       extractPrice(priceText),
@@ -184,11 +173,10 @@ func (a *AmericanasScraper) extractProduct(s *goquery.Selection, categoryName st
 		Gender:      gender,
 		Season:      "all",
 		Weather:     determineWeatherSuitability(category, name),
-		Sizes:       []string{"P", "M", "G", "GG"}, // Default sizes
+		Sizes:       []string{"P", "M", "G", "GG"}, 
 		Colors:      []string{"Variadas"},
 	}
 
-	// Try to get original price
 	originalPriceText := a.trySelectors(s, []string{
 		".list-price",
 		".old-price",
@@ -216,7 +204,6 @@ func (a *AmericanasScraper) trySelectors(s *goquery.Selection, selectors []strin
 }
 
 func (a *AmericanasScraper) extractBrand(productName string) string {
-	// Common brands found on Americanas
 	brands := []string{
 		"Nike", "Adidas", "Puma", "Hering", "Malwee", 
 		"Lacoste", "Calvin Klein", "Tommy Hilfiger", "Polo Ralph Lauren",
@@ -230,7 +217,6 @@ func (a *AmericanasScraper) extractBrand(productName string) string {
 		}
 	}
 
-	// If no brand found, return "Americanas" as marketplace
 	return "Americanas"
 }
 
@@ -289,6 +275,5 @@ func (a *AmericanasScraper) categorizeProduct(categoryName, productName string) 
 		return "shoes", "casual"
 	}
 
-	// Default fallback
 	return "shirt", "casual"
 }

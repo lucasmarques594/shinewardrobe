@@ -28,7 +28,6 @@ func (r *RennerScraper) GetName() string {
 func (r *RennerScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 	r.logger.Info("Starting Renner scraping...")
 
-	// Create Chrome context
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("no-sandbox", true),
@@ -44,7 +43,6 @@ func (r *RennerScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 
 	var products []Product
 
-	// Scrape different categories
 	categories := map[string]string{
 		"camisetas-masculino": "https://www.lojasrenner.com.br/c/moda-masculina/camisetas",
 		"camisetas-feminino":  "https://www.lojasrenner.com.br/c/moda-feminina/blusas-e-camisetas",
@@ -63,7 +61,6 @@ func (r *RennerScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 
 		products = append(products, categoryProducts...)
 		
-		// Rate limiting
 		time.Sleep(3 * time.Second)
 	}
 
@@ -74,7 +71,6 @@ func (r *RennerScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 func (r *RennerScraper) scrapeCategory(ctx context.Context, url, categoryName string) ([]Product, error) {
 	var htmlContent string
 
-	// Navigate and wait for products
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
 		chromedp.Sleep(4*time.Second),
@@ -86,7 +82,6 @@ func (r *RennerScraper) scrapeCategory(ctx context.Context, url, categoryName st
 		return nil, fmt.Errorf("failed to load Renner page: %w", err)
 	}
 
-	// Parse HTML
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlContent))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %w", err)
@@ -94,7 +89,6 @@ func (r *RennerScraper) scrapeCategory(ctx context.Context, url, categoryName st
 
 	var products []Product
 
-	// Extract products (try different selectors)
 	selectors := []string{
 		".showcase-item",
 		".product-item",
@@ -106,7 +100,7 @@ func (r *RennerScraper) scrapeCategory(ctx context.Context, url, categoryName st
 		items := doc.Find(selector)
 		if items.Length() > 0 {
 			items.Each(func(i int, s *goquery.Selection) {
-				if i >= 15 { // Limit products per category
+				if i >= 15 { 
 					return
 				}
 
@@ -115,7 +109,7 @@ func (r *RennerScraper) scrapeCategory(ctx context.Context, url, categoryName st
 					products = append(products, product)
 				}
 			})
-			break // Use first selector that returns results
+			break 
 		}
 	}
 
@@ -123,7 +117,6 @@ func (r *RennerScraper) scrapeCategory(ctx context.Context, url, categoryName st
 }
 
 func (r *RennerScraper) extractProduct(s *goquery.Selection, categoryName string) Product {
-	// Try different selectors for product name
 	name := r.trySelectors(s, []string{
 		".product-name",
 		".item-name",
@@ -133,7 +126,6 @@ func (r *RennerScraper) extractProduct(s *goquery.Selection, categoryName string
 		"[data-testid='product-name']",
 	})
 
-	// Try different selectors for price
 	priceText := r.trySelectors(s, []string{
 		".price-value",
 		".price",
@@ -143,16 +135,13 @@ func (r *RennerScraper) extractProduct(s *goquery.Selection, categoryName string
 		"[data-testid='price']",
 	})
 
-	// Try different selectors for image
 	imageURL, _ := s.Find("img").First().Attr("src")
 	if imageURL == "" {
 		imageURL, _ = s.Find("img").First().Attr("data-src")
 	}
 
-	// Try different selectors for product URL
 	productURL, _ := s.Find("a").First().Attr("href")
 
-	// Clean up URLs
 	if imageURL != "" && !strings.HasPrefix(imageURL, "http") {
 		imageURL = "https://www.lojasrenner.com.br" + imageURL
 	}
@@ -160,7 +149,6 @@ func (r *RennerScraper) extractProduct(s *goquery.Selection, categoryName string
 		productURL = "https://www.lojasrenner.com.br" + productURL
 	}
 
-	// Determine category and gender
 	category, subcategory := r.categorizeProduct(categoryName, name)
 	gender := determineGender(name, category)
 
@@ -176,11 +164,10 @@ func (r *RennerScraper) extractProduct(s *goquery.Selection, categoryName string
 		Gender:      gender,
 		Season:      "all",
 		Weather:     determineWeatherSuitability(category, name),
-		Sizes:       []string{"P", "M", "G", "GG", "XG"}, // Default Renner sizes
+		Sizes:       []string{"P", "M", "G", "GG", "XG"}, 
 		Colors:      []string{"Variadas"},
 	}
 
-	// Try to get original price (sale items)
 	originalPriceText := r.trySelectors(s, []string{
 		".price-old",
 		".preco-original",
@@ -210,7 +197,6 @@ func (r *RennerScraper) categorizeProduct(categoryName, productName string) (str
 	lowerName := strings.ToLower(productName)
 	lowerCategory := strings.ToLower(categoryName)
 
-	// Category mapping based on Renner structure
 	if strings.Contains(lowerCategory, "camiseta") || strings.Contains(lowerName, "camiseta") {
 		if strings.Contains(lowerName, "polo") {
 			return "shirt", "polo"
@@ -246,6 +232,5 @@ func (r *RennerScraper) categorizeProduct(categoryName, productName string) (str
 		return "jacket", "casual"
 	}
 
-	// Default fallback
 	return "shirt", "casual"
 }

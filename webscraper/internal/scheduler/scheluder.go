@@ -29,17 +29,11 @@ func NewService(scraperService *scraper.Service, schedule string, logger *logrus
 
 func (s *Service) Start(ctx context.Context) {
 	s.logger.WithField("schedule", s.schedule).Info("Starting scheduler...")
-
-	// Parse cron schedule (convert from 6-field to 5-field format for gocron)
-	// Input:  "0 59 23 * * *" (second minute hour day month weekday)
-	// Output: "59 23 * * *"   (minute hour day month weekday)
 	cronFields := parseCronSchedule(s.schedule)
 	
-	// Schedule the job
 	_, err := s.cron.Cron(cronFields).Do(func() {
 		s.logger.Info("Executing scheduled scraping job...")
 		
-		// Create context with timeout for the scraping job
 		jobCtx, cancel := context.WithTimeout(ctx, 30*time.Minute)
 		defer cancel()
 		
@@ -54,7 +48,6 @@ func (s *Service) Start(ctx context.Context) {
 		s.logger.WithError(err).Fatal("Failed to schedule scraping job")
 	}
 
-	// Start the scheduler
 	s.cron.StartAsync()
 	s.logger.Info("Scheduler started successfully")
 }

@@ -88,7 +88,6 @@ func (s *Service) ScrapeAll(ctx context.Context) error {
 }
 
 func (s *Service) scrapeFromSite(ctx context.Context, scraper SiteScraper) ([]Product, error) {
-	// Create timeout context
 	timeout := 5 * time.Minute
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
@@ -100,7 +99,6 @@ func (s *Service) scrapeFromSite(ctx context.Context, scraper SiteScraper) ([]Pr
 		return nil, fmt.Errorf("failed to scrape %s: %w", scraper.GetName(), err)
 	}
 
-	// Categorize products as economic or luxury based on price
 	for i := range products {
 		s.categorizeProduct(&products[i])
 	}
@@ -109,39 +107,34 @@ func (s *Service) scrapeFromSite(ctx context.Context, scraper SiteScraper) ([]Pr
 }
 
 func (s *Service) categorizeProduct(product *Product) {
-	// Simple price-based categorization
-	// These thresholds can be adjusted based on market research
 	economicThresholds := map[string]float64{
-		"shirt":     80.0,  // Camisetas até R$ 80 = econômico
-		"pants":     150.0, // Calças até R$ 150 = econômico
-		"dress":     120.0, // Vestidos até R$ 120 = econômico
-		"shoes":     200.0, // Sapatos até R$ 200 = econômico
-		"jacket":    250.0, // Jaquetas até R$ 250 = econômico
-		"accessory": 50.0,  // Acessórios até R$ 50 = econômico
+		"shirt":     80.0,  
+		"pants":     150.0, 
+		"dress":     120.0, 
+		"shoes":     200.0, 
+		"jacket":    250.0, 
+		"accessory": 50.0,  
 	}
 
 	luxuryThresholds := map[string]float64{
-		"shirt":     300.0, // Camisetas acima de R$ 300 = luxo
-		"pants":     500.0, // Calças acima de R$ 500 = luxo
-		"dress":     600.0, // Vestidos acima de R$ 600 = luxo
-		"shoes":     800.0, // Sapatos acima de R$ 800 = luxo
-		"jacket":    800.0, // Jaquetas acima de R$ 800 = luxo
-		"accessory": 200.0, // Acessórios acima de R$ 200 = luxo
+		"shirt":     300.0, 
+		"pants":     500.0, 
+		"dress":     600.0, 
+		"shoes":     800.0, 
+		"jacket":    800.0, 
+		"accessory": 200.0, 
 	}
 
 	category := strings.ToLower(product.Category)
 	
-	// Check if it's economic
 	if threshold, exists := economicThresholds[category]; exists && product.Price <= threshold {
 		product.IsEconomic = true
 	}
 
-	// Check if it's luxury
 	if threshold, exists := luxuryThresholds[category]; exists && product.Price >= threshold {
 		product.IsLuxury = true
 	}
 
-	// Default fallback if no category match
 	if !product.IsEconomic && !product.IsLuxury {
 		if product.Price <= 100.0 {
 			product.IsEconomic = true
@@ -156,7 +149,6 @@ func (s *Service) saveProducts(products []Product) (int, error) {
 		return 0, nil
 	}
 
-	// Prepare batch insert
 	query := `
 		INSERT INTO products (
 			name, brand, category, subcategory, price, original_price,
@@ -177,7 +169,6 @@ func (s *Service) saveProducts(products []Product) (int, error) {
 		
 		placeholders = append(placeholders, placeholder)
 		
-		// Convert slices to JSON
 		sizesJSON := fmt.Sprintf("[%s]", strings.Join(s.quoteStrings(product.Sizes), ","))
 		colorsJSON := fmt.Sprintf("[%s]", strings.Join(s.quoteStrings(product.Colors), ","))
 		weatherJSON := fmt.Sprintf("[%s]", strings.Join(s.quoteStrings(product.Weather), ","))
@@ -216,10 +207,8 @@ func (s *Service) quoteStrings(strs []string) []string {
 	return quoted
 }
 
-// Utility functions for scraping
 
 func extractPrice(priceText string) float64 {
-	// Remove currency symbols and clean up
 	cleaned := strings.ReplaceAll(priceText, "R$", "")
 	cleaned = strings.ReplaceAll(cleaned, "$", "")
 	cleaned = strings.ReplaceAll(cleaned, ".", "")

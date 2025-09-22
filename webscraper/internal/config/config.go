@@ -18,12 +18,11 @@ type Config struct {
 }
 
 func Load() (*Config, error) {
-	// Try to load .env file (optional)
 	_ = godotenv.Load()
 
 	config := &Config{
 		DatabaseURL:    getEnv("DATABASE_URL", "postgres://shinewardrobe:shinewardrobe123@localhost:5432/shinewardrobe?sslmode=disable"),
-		Schedule:       getEnv("SCRAPER_SCHEDULE", "0 59 23 * * *"), // Daily at 23:59
+		Schedule:       getEnv("SCRAPER_SCHEDULE", "0 59 23 * * *"), 
 		MaxProducts:    getEnvInt("SCRAPER_MAX_PRODUCTS", 50),
 		LogLevel:       getEnv("LOG_LEVEL", "info"),
 		ChromeHeadless: getEnvBool("CHROME_HEADLESS", true),
