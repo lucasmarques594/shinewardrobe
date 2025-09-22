@@ -7,14 +7,12 @@ import { cookie } from '@elysiajs/cookie';
 
 import { authRoutes } from './presentation/routes/auth.routes';
 import { userRoutes } from './presentation/routes/user.routes';
-import { recommendationRoutes } from './presentation/routes/recommendation.routes';
 import { productRoutes } from './presentation/routes/product.routes';
 import { weatherRoutes } from './presentation/routes/weather.routes';
 
 import { DatabaseService } from './infrastructure/database/database.service';
 import { errorHandler } from './presentation/middlware/error-handle';
 
-// Initialize database
 const databaseService = new DatabaseService();
 await databaseService.initialize();
 
@@ -36,7 +34,6 @@ const app = new Elysia()
         tags: [
           { name: 'Auth', description: 'Autenticação e autorização' },
           { name: 'Users', description: 'Gerenciamento de usuários' },
-          { name: 'Recommendations', description: 'Recomendações de roupas' },
           { name: 'Products', description: 'Produtos scraped' },
           { name: 'Weather', description: 'Dados meteorológicos' },
         ]
@@ -63,7 +60,8 @@ const app = new Elysia()
   .get('/health', () => ({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    service: 'ShineWardrobe API'
+    service: 'ShineWardrobe API',
+    ollama: process.env.OLLAMA_URL || 'not configured'
   }), {
     detail: {
       tags: ['Health'],
@@ -71,12 +69,10 @@ const app = new Elysia()
     }
   })
 
-  // API Routes
   .group('/api', (app) => 
     app
       .use(authRoutes)
       .use(userRoutes)
-      .use(recommendationRoutes)
       .use(productRoutes)
       .use(weatherRoutes)
   )
@@ -85,3 +81,11 @@ const app = new Elysia()
 
 console.log(`🦊 ShineWardrobe API is running at http://localhost:${app.server?.port}`);
 console.log(`📚 Swagger documentation available at http://localhost:${app.server?.port}/swagger`);
+console.log(`🤖 Ollama URL: ${process.env.OLLAMA_URL || 'not configured'}`);
+
+// Test Ollama connection
+if (process.env.OLLAMA_URL) {
+  fetch(`${process.env.OLLAMA_URL}/api/tags`)
+    .then(() => console.log('✅ Ollama connection successful'))
+    .catch(() => console.log('⚠️  Ollama not available - will use fallback recommendations'));
+}
