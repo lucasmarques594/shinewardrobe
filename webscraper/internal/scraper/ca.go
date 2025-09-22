@@ -28,7 +28,6 @@ func (c *CASScraper) GetName() string {
 func (c *CASScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 	c.logger.Info("Starting C&A scraping...")
 
-	// Create Chrome context
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("no-sandbox", true),
@@ -44,7 +43,6 @@ func (c *CASScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 
 	var products []Product
 
-	// C&A categories
 	categories := map[string]string{
 		"camisetas-masculino": "https://www.cea.com.br/masculino/camisetas",
 		"camisetas-feminino":  "https://www.cea.com.br/feminino/blusas-e-camisetas",
@@ -64,7 +62,6 @@ func (c *CASScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 
 		products = append(products, categoryProducts...)
 		
-		// Rate limiting
 		time.Sleep(2 * time.Second)
 	}
 
@@ -75,7 +72,6 @@ func (c *CASScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 func (c *CASScraper) scrapeCategory(ctx context.Context, url, categoryName string) ([]Product, error) {
 	var htmlContent string
 
-	// Navigate and wait for products
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
 		chromedp.Sleep(5*time.Second),
@@ -87,7 +83,6 @@ func (c *CASScraper) scrapeCategory(ctx context.Context, url, categoryName strin
 		return nil, fmt.Errorf("failed to load C&A page: %w", err)
 	}
 
-	// Parse HTML
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlContent))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %w", err)
@@ -95,7 +90,6 @@ func (c *CASScraper) scrapeCategory(ctx context.Context, url, categoryName strin
 
 	var products []Product
 
-	// Try different selectors for C&A
 	selectors := []string{
 		".product-tile",
 		".product-item",
@@ -108,7 +102,7 @@ func (c *CASScraper) scrapeCategory(ctx context.Context, url, categoryName strin
 		items := doc.Find(selector)
 		if items.Length() > 0 {
 			items.Each(func(i int, s *goquery.Selection) {
-				if i >= 12 { // Limit products
+				if i >= 12 { 
 					return
 				}
 
@@ -125,7 +119,6 @@ func (c *CASScraper) scrapeCategory(ctx context.Context, url, categoryName strin
 }
 
 func (c *CASScraper) extractProduct(s *goquery.Selection, categoryName string) Product {
-	// Extract product information
 	name := c.trySelectors(s, []string{
 		".product-title",
 		".product-name",
@@ -150,7 +143,6 @@ func (c *CASScraper) extractProduct(s *goquery.Selection, categoryName string) P
 
 	productURL, _ := s.Find("a").First().Attr("href")
 
-	// Clean URLs
 	if imageURL != "" && !strings.HasPrefix(imageURL, "http") {
 		imageURL = "https://www.cea.com.br" + imageURL
 	}
@@ -158,7 +150,6 @@ func (c *CASScraper) extractProduct(s *goquery.Selection, categoryName string) P
 		productURL = "https://www.cea.com.br" + productURL
 	}
 
-	// Categorize
 	category, subcategory := c.categorizeProduct(categoryName, name)
 	gender := determineGender(name, category)
 
@@ -174,11 +165,10 @@ func (c *CASScraper) extractProduct(s *goquery.Selection, categoryName string) P
 		Gender:      gender,
 		Season:      "all",
 		Weather:     determineWeatherSuitability(category, name),
-		Sizes:       []string{"PP", "P", "M", "G", "GG"}, // C&A sizes
+		Sizes:       []string{"PP", "P", "M", "G", "GG"}, 
 		Colors:      []string{"Variadas"},
 	}
 
-	// Original price for sales
 	originalPriceText := c.trySelectors(s, []string{
 		".price-original",
 		".old-price",
