@@ -28,7 +28,6 @@ func (z *ZaraScraper) GetName() string {
 func (z *ZaraScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 	z.logger.Info("Starting Zara scraping...")
 
-	// Create Chrome context
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("no-sandbox", true),
@@ -44,7 +43,6 @@ func (z *ZaraScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 
 	var products []Product
 
-	// Scrape different categories
 	categories := map[string]string{
 		"camisetas-masculino": "https://www.zara.com/br/pt/homem/camisetas-c269234.html",
 		"camisetas-feminino":  "https://www.zara.com/br/pt/mulher/camisetas-c269186.html",
@@ -63,7 +61,6 @@ func (z *ZaraScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 
 		products = append(products, categoryProducts...)
 		
-		// Rate limiting - wait between categories
 		time.Sleep(2 * time.Second)
 	}
 
@@ -74,10 +71,9 @@ func (z *ZaraScraper) ScrapeProducts(ctx context.Context) ([]Product, error) {
 func (z *ZaraScraper) scrapeCategory(ctx context.Context, url, categoryName string) ([]Product, error) {
 	var htmlContent string
 
-	// Navigate to page and wait for products to load
 	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
-		chromedp.Sleep(3*time.Second), // Wait for dynamic content
+		chromedp.Sleep(3*time.Second), 
 		chromedp.WaitVisible(".product-item", chromedp.ByQuery),
 		chromedp.InnerHTML("html", &htmlContent),
 	)
@@ -86,7 +82,6 @@ func (z *ZaraScraper) scrapeCategory(ctx context.Context, url, categoryName stri
 		return nil, fmt.Errorf("failed to load page: %w", err)
 	}
 
-	// Parse HTML with goquery
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlContent))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse HTML: %w", err)
@@ -94,9 +89,8 @@ func (z *ZaraScraper) scrapeCategory(ctx context.Context, url, categoryName stri
 
 	var products []Product
 
-	// Extract products (limit to avoid overwhelming)
 	doc.Find(".product-item").Each(func(i int, s *goquery.Selection) {
-		if i >= 20 { // Limit to 20 products per category
+		if i >= 20 { 
 			return
 		}
 
@@ -110,13 +104,11 @@ func (z *ZaraScraper) scrapeCategory(ctx context.Context, url, categoryName stri
 }
 
 func (z *ZaraScraper) extractProduct(s *goquery.Selection, categoryName string) Product {
-	// Extract product information
 	name := strings.TrimSpace(s.Find(".product-name, .product-title, h3").First().Text())
 	priceText := strings.TrimSpace(s.Find(".price, .product-price").First().Text())
 	imageURL, _ := s.Find("img").First().Attr("src")
 	productURL, _ := s.Find("a").First().Attr("href")
 
-	// Clean up URLs
 	if imageURL != "" && !strings.HasPrefix(imageURL, "http") {
 		imageURL = "https://static.zara.net" + imageURL
 	}
@@ -124,11 +116,9 @@ func (z *ZaraScraper) extractProduct(s *goquery.Selection, categoryName string) 
 		productURL = "https://www.zara.com" + productURL
 	}
 
-	// Determine category and gender
 	category, subcategory := z.categorizeProduct(categoryName, name)
 	gender := determineGender(name, category)
 
-	// Create product
 	product := Product{
 		Name:        name,
 		Brand:       "Zara",
@@ -141,11 +131,10 @@ func (z *ZaraScraper) extractProduct(s *goquery.Selection, categoryName string) 
 		Gender:      gender,
 		Season:      "all",
 		Weather:     determineWeatherSuitability(category, name),
-		Sizes:       []string{"P", "M", "G", "GG"}, // Default sizes
-		Colors:      []string{"Variadas"},           // Default colors
+		Sizes:       []string{"P", "M", "G", "GG"}, 
+		Colors:      []string{"Variadas"},          
 	}
 
-	// Set original price if different (sales)
 	if originalPriceText := strings.TrimSpace(s.Find(".price-old, .original-price").First().Text()); originalPriceText != "" {
 		originalPrice := extractPrice(originalPriceText)
 		if originalPrice > product.Price {
@@ -160,7 +149,6 @@ func (z *ZaraScraper) categorizeProduct(categoryName, productName string) (strin
 	lowerName := strings.ToLower(productName)
 	lowerCategory := strings.ToLower(categoryName)
 
-	// Main category mapping
 	if strings.Contains(lowerCategory, "camiseta") || strings.Contains(lowerName, "camiseta") {
 		return "shirt", "t-shirt"
 	}
@@ -180,6 +168,5 @@ func (z *ZaraScraper) categorizeProduct(categoryName, productName string) (strin
 		return "shoes", "casual"
 	}
 
-	// Default fallback
 	return "shirt", "casual"
 }
