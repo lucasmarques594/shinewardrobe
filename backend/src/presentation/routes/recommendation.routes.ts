@@ -3,7 +3,6 @@ import { RecommendationService } from '../../application/services/recommendation
 import { RecommendationRepository } from '../../infrastructure/repositories/recommendation.repository';
 import { WeatherService } from '../../application/services/weather.service';
 import { ProductRepository } from '../../infrastructure/repositories/product.repository';
-import { ClaudeService } from '../../application/services/claude.service';
 import { DatabaseService } from '../../infrastructure/database/database.service';
 import { authMiddleware } from '../middlware/auth.middleware';
 
@@ -11,12 +10,10 @@ const databaseService = DatabaseService.getInstance();
 const recommendationRepository = new RecommendationRepository(databaseService.db);
 const productRepository = new ProductRepository(databaseService.db);
 const weatherService = new WeatherService();
-const claudeService = new ClaudeService();
 const recommendationService = new RecommendationService(
   recommendationRepository,
   productRepository,
-  weatherService,
-  claudeService
+  weatherService
 );
 
 export const recommendationRoutes = new Elysia({ prefix: '/recommendations' })
@@ -251,3 +248,4 @@ export const recommendationRoutes = new Elysia({ prefix: '/recommendations' })
       description: 'Generate new outfit recommendation for same conditions'
     }
   });
+
