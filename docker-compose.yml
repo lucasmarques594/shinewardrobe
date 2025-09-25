@@ -34,13 +34,6 @@ services:
       - OLLAMA_HOST=0.0.0.0:11434
     networks:
       - shinewardrobe-net
-    command: >
-      sh -c "
-        /bin/ollama serve &
-        sleep 10 &&
-        /bin/ollama pull llama3.2:1b &&
-        wait
-      "
 
   backend:
     build:
@@ -71,6 +64,8 @@ services:
       sh -c "
         echo 'Aguardando banco de dados...' &&
         sleep 15 &&
+        echo 'Executando migrations...' &&
+        bun run migrate &&
         echo 'Iniciando backend...' &&
         bun --watch src/index.ts
       "
