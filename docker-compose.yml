@@ -46,6 +46,7 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN} 
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - WEATHER_API_KEY=${WEATHER_API_KEY}
       - OLLAMA_URL=http://ollama:11434
