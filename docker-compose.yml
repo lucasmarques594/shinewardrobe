@@ -1,81 +1,113 @@
-version: '3.8'
+name: shinewardrobe
 
 services:
   postgres:
-    image: postgres:15
-    container_name: shinewardrobe-postgres
+    image: postgres:15-alpine
+    container_name: shinewardrobe-db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: shinewardrobe
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shinewardrobe"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shinewardrobe-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: shinewardrobe-ai
     restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_HOST=0.0.0.0:11434
+    networks:
+      - shinewardrobe-net
+    command: >
+      sh -c "
+        /bin/ollama serve &
+        sleep 10 &&
+        /bin/ollama pull llama3.2:1b &&
+        wait
+      "
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: shinewardrobe-backend
+    container_name: shinewardrobe-api
+    restart: unless-stopped
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
-      - WEATHER_API_KEY=${WEATHER_API_KEY}
-      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
-      - NODE_ENV=production
-      - PORT=${BACKEND_PORT}
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/shinewardrobe
+      - JWT_SECRET=super-secret-key-123
+      - JWT_EXPIRES_IN=7d
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:1b
+      - PORT=8080
+      - NODE_ENV=development
+      - CORS_ORIGIN=*
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+      - "8080:8080"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:${BACKEND_PORT}/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    networks:
+      - shinewardrobe-net
+    command: >
+      sh -c "
+        echo 'Aguardando banco de dados...' &&
+        sleep 15 &&
+        echo 'Iniciando backend...' &&
+        bun --watch src/index.ts
+      "
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: shinewardrobe-frontend
+    container_name: shinewardrobe-web
+    restart: unless-stopped
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:${BACKEND_PORT}
-      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NODE_ENV=development
     ports:
-      - "${FRONTEND_PORT}:3000"
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
       - backend
-    restart: unless-stopped
-
-  webscraper:
-    build:
-      context: ./webscraper
-      dockerfile: Dockerfile
-    container_name: shinewardrobe-scraper
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - SCRAPER_SCHEDULE=${SCRAPER_SCHEDULE}
-      - SCRAPER_MAX_PRODUCTS=${SCRAPER_MAX_PRODUCTS}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
+    networks:
+      - shinewardrobe-net
+    command: >
+      sh -c "
+        echo 'Aguardando backend...' &&
+        sleep 20 &&
+        echo 'Iniciando frontend...' &&
+        bun dev
+      "
 
 volumes:
   postgres_data:
+    driver: local
+  ollama_data:
+    driver: local
 
 networks:
-  default:
-    name: shinewardrobe-network
+  shinewardrobe-net:
+    driver: bridge
