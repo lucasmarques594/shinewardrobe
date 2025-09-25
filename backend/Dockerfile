@@ -20,7 +20,7 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/src ./src
 
 # Install curl for healthcheck
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl postgresql-client
 
 EXPOSE 8080
 

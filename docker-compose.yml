@@ -1,81 +1,103 @@
-version: '3.8'
+name: shinewardrobe
 
 services:
   postgres:
-    image: postgres:15
-    container_name: shinewardrobe-postgres
+    image: postgres:15-alpine
+    container_name: shinewardrobe-db
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: shinewardrobe
+      POSTGRES_PASSWORD: shinewardrobe123
+      POSTGRES_DB: shinewardrobe
     ports:
       - "5432:5432"
     volumes:
+      - ./backend/src/migrations:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "pg_isready -U shinewardrobe -d shinewardrobe"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shinewardrobe-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: shinewardrobe-ai
     restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_HOST=0.0.0.0:11434
+    networks:
+      - shinewardrobe-net
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: shinewardrobe-backend
+    container_name: shinewardrobe-api
+    restart: unless-stopped
+    # Variáveis de ambiente carregadas do arquivo .env
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN} 
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - WEATHER_API_KEY=${WEATHER_API_KEY}
-      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
-      - NODE_ENV=production
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2:3b
+      - NODE_ENV=development
       - PORT=${BACKEND_PORT}
+      - CORS_ORIGIN=*
     ports:
+      # Mapeia a porta definida em .env para a porta do host
       - "${BACKEND_PORT}:${BACKEND_PORT}"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:${BACKEND_PORT}/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    networks:
+      - shinewardrobe-net
+    command: >
+      sh -c "
+        echo 'Banco de dados pronto. Iniciando backend...' &&
+        bun --watch src/index.ts
+      "
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: shinewardrobe-frontend
+    container_name: shinewardrobe-web
+    restart: unless-stopped
     environment:
+      # Esta variável precisa do valor da porta do backend
       - NEXT_PUBLIC_API_URL=http://localhost:${BACKEND_PORT}
-      - NODE_ENV=production
+      - NODE_ENV=development
     ports:
-      - "${FRONTEND_PORT}:3000"
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
     depends_on:
       - backend
-    restart: unless-stopped
-
-  webscraper:
-    build:
-      context: ./webscraper
-      dockerfile: Dockerfile
-    container_name: shinewardrobe-scraper
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - SCRAPER_SCHEDULE=${SCRAPER_SCHEDULE}
-      - SCRAPER_MAX_PRODUCTS=${SCRAPER_MAX_PRODUCTS}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
+    networks:
+      - shinewardrobe-net
 
 volumes:
   postgres_data:
+    driver: local
+  ollama_data:
+    driver: local
 
 networks:
-  default:
-    name: shinewardrobe-network
+  shinewardrobe-net:
+    driver: bridge

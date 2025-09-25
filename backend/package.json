@@ -14,21 +14,21 @@
     "format": "prettier --write src/**/*.ts"
   },
   "dependencies": {
-    "@elysiajs/swagger": "^0.8.0",
-    "@elysiajs/cors": "^0.8.0",
-    "@elysiajs/jwt": "^0.8.0",
+    "@anthropic-ai/sdk": "^0.17.0",
     "@elysiajs/bearer": "^0.8.0",
     "@elysiajs/cookie": "^0.8.0",
-    "elysia": "^0.8.0",
-    "postgres": "^3.4.0",
-    "drizzle-orm": "^0.29.0",
-    "drizzle-kit": "^0.20.0",
+    "@elysiajs/cors": "^1.4.0",
+    "@elysiajs/jwt": "^0.8.0",
+    "@elysiajs/swagger": "^0.8.0",
+    "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
-    "zod": "^3.22.0",
+    "drizzle-kit": "^0.20.0",
+    "drizzle-orm": "^0.29.0",
+    "elysia": "^0.8.0",
     "nanoid": "^5.0.0",
     "node-cron": "^3.0.3",
-    "@anthropic-ai/sdk": "^0.17.0",
-    "axios": "^1.6.0"
+    "postgres": "^3.4.0",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.0",
