@@ -58,9 +58,9 @@ A API é o núcleo do sistema, comunicando-se com o banco de dados para persist�
 
 ```mermaid
 flowchart TD
-    A[Usuário/Cliente API] -->|Requisições HTTP| B[Backend (Elysia.js)]
+    A[Usuário/Cliente API] -->|Requisições HTTP| B[Backend Elysia.js]
     B -->|Consultas e Persistência| C[(PostgreSQL DB)]
-    B -->|Geração de Recomendações| D[IA (Ollama)]
+    B -->|Geração de Recomendações| D[IA Ollama]
 ```
 
 ---
