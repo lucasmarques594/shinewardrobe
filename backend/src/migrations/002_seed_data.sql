@@ -15,14 +15,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',
     'https://example.com/camiseta-basica-1',
     'Camiseta básica em algodão, confortável para o dia a dia',
-    '["P", "M", "G", "GG"]',
-    '["Branco", "Preto", "Azul"]',
+    '["P", "M", "G", "GG"]'::jsonb,
+    '["Branco", "Preto", "Azul"]'::jsonb,
     FALSE,
     TRUE,
     'renner',
     'unisex',
     'all',
-    '["sunny", "hot"]'
+    '["sunny", "hot"]'::jsonb
 ),
 (
     'Bermuda Jeans Masculina',
@@ -34,14 +34,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1555689502-c4b22d76c56f?w=500',
     'https://example.com/bermuda-jeans-1',
     'Bermuda jeans confortável, ideal para dias quentes',
-    '["38", "40", "42", "44"]',
-    '["Azul", "Preto"]',
+    '["38", "40", "42", "44"]'::jsonb,
+    '["Azul", "Preto"]'::jsonb,
     FALSE,
     TRUE,
     'ca',
     'male',
     'summer',
-    '["sunny", "hot"]'
+    '["sunny", "hot"]'::jsonb
 ),
 
 -- Luxury options
@@ -55,14 +55,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500',
     'https://example.com/polo-lacoste-1',
     'Camisa polo premium em piquê, corte moderno',
-    '["P", "M", "G", "GG"]',
-    '["Branco", "Marinho", "Verde"]',
+    '["P", "M", "G", "GG"]'::jsonb,
+    '["Branco", "Marinho", "Verde"]'::jsonb,
     TRUE,
     FALSE,
     'lacoste',
     'male',
     'all',
-    '["sunny", "cloudy"]'
+    '["sunny", "cloudy"]'::jsonb
 ),
 (
     'Vestido Midi Designer',
@@ -74,14 +74,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500',
     'https://example.com/vestido-midi-1',
     'Vestido midi elegante, perfeito para ocasiões especiais',
-    '["P", "M", "G"]',
-    '["Preto", "Azul marinho", "Vermelho"]',
+    '["P", "M", "G"]'::jsonb,
+    '["Preto", "Azul marinho", "Vermelho"]'::jsonb,
     TRUE,
     FALSE,
     'zara',
     'female',
     'all',
-    '["sunny", "cloudy"]'
+    '["sunny", "cloudy"]'::jsonb
 ),
 
 -- More economic options
@@ -95,14 +95,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1582418702874-997bb9d0ca3c?w=500',
     'https://example.com/calca-jeans-skinny-1',
     'Calça jeans skinny, corte moderno e confortável',
-    '["36", "38", "40", "42", "44"]',
-    '["Azul claro", "Azul escuro", "Preto"]',
+    '["36", "38", "40", "42", "44"]'::jsonb,
+    '["Azul claro", "Azul escuro", "Preto"]'::jsonb,
     FALSE,
     TRUE,
     'marisa',
     'female',
     'all',
-    '["sunny", "cloudy"]'
+    '["sunny", "cloudy"]'::jsonb
 ),
 (
     'Camiseta Gola V Masculina',
@@ -114,14 +114,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1583743814966-8936f37f4678?w=500',
     'https://example.com/camiseta-gola-v-1',
     'Camiseta gola V em malha de qualidade',
-    '["P", "M", "G", "GG"]',
-    '["Branco", "Cinza", "Preto", "Marinho"]',
+    '["P", "M", "G", "GG"]'::jsonb,
+    '["Branco", "Cinza", "Preto", "Marinho"]'::jsonb,
     FALSE,
     TRUE,
     'hering',
     'male',
     'all',
-    '["sunny", "hot"]'
+    '["sunny", "hot"]'::jsonb
 ),
 
 -- Luxury winter options
@@ -135,14 +135,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500',
     'https://example.com/casaco-la-premium-1',
     'Casaco de lã premium, elegante e quente para o inverno',
-    '["P", "M", "G", "GG"]',
-    '["Preto", "Cinza", "Marinho"]',
+    '["P", "M", "G", "GG"]'::jsonb,
+    '["Preto", "Cinza", "Marinho"]'::jsonb,
     TRUE,
     FALSE,
     'hugoboss',
     'unisex',
     'winter',
-    '["cold", "rain"]'
+    '["cold", "rain"]'::jsonb
 ),
 (
     'Bota Couro Masculina',
@@ -154,14 +154,14 @@ INSERT INTO products (
     'https://images.unsplash.com/photo-1608256246200-53e8b47b2ba5?w=500',
     'https://example.com/bota-couro-1',
     'Bota em couro legítimo, resistente e confortável',
-    '["39", "40", "41", "42", "43", "44"]',
-    '["Marrom", "Preto"]',
+    '["39", "40", "41", "42", "43", "44"]'::jsonb,
+    '["Marrom", "Preto"]'::jsonb,
     TRUE,
     FALSE,
     'democrata',
     'male',
     'all',
-    '["cold", "rain"]'
+    '["cold", "rain"]'::jsonb
 );
 
 -- Insert sample user (for testing)
