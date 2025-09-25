@@ -76,7 +76,7 @@ flowchart TD
 **1. Clonar o Repositório**
 
 ```bash
-git clone https://github.com/your-username/shinewardrobe.git
+git clone https://github.com/lucasmarques594/shinewardrobe.git
 cd shinewardrobe
 ```
 
